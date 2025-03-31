@@ -28,9 +28,8 @@ class Cart:
             self.cart[product_id]['quantity'] += quantity
         self.save()
 
-    def remove(self, product):
+    def remove(self, product_id: str) -> None:
         """Удалить товар из корзины."""
-        product_id = str(product.id)
         if product_id in self.cart:
             del self.cart[product_id]
             self.save()
@@ -39,15 +38,14 @@ class Cart:
         # пометить сеанс как "измененный",
         # чтобы обеспечить его сохранение
         self.session.modified = True
-        self.session.modified
 
     def get_total_price(self):
         return sum(
-            Decimal(item['price'] * item['quantity'])
+            Decimal(Decimal(item['price']) * item['quantity'])
             for item in self.cart.values()
         )
 
-    def clear(self):
+    def clear(self) -> None:
         del self.session[settings.CART_SESSION_ID]
         self.save()
 
@@ -56,7 +54,6 @@ class Cart:
         Прокрутить товарные позиции корзины в цикле и получить товары из базы данных.
         """
         product_ids = self.cart.keys()
-        # print(product_ids)
         products = Product.objects.filter(id__in=product_ids)
         cart = self.cart.copy()
         for product in products:
